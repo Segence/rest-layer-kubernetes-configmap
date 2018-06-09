@@ -1,0 +1,128 @@
+{
+	"info": {
+		"_postman_id": "f9e882d4-ef3d-495c-9219-e29f314a89b8",
+		"name": "REST Layer Kubernetes ConfigMap",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Creating new ConfigMap",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/config-map",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"config-map"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Updating existing ConfigMap",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello2\",\n\t\t\"new_config\": \"12\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/config-map/testconf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"config-map",
+						"testconf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deleting existing ConfigMap",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/config-map/testconf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"config-map",
+						"testconf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Querying existing ConfigMap",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/config-map/testconf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"config-map",
+						"testconf"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

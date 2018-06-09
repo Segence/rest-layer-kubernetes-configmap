@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/ericchiang/k8s"
@@ -135,14 +136,17 @@ func (k *KubernetesClient) Find(ctx context.Context, q *query.Query) (list *reso
 				var configMap corev1.ConfigMap
 				err := k.client.Get(ctx, k.namespace, configMapName, &configMap)
 				if err != nil {
-					return nil, err
+					apiErr, _ := err.(*k8s.APIError)
+					if apiErr.Code != http.StatusNotFound {
+						return nil, err
+					}
+				} else {
+					item, err := buildItem(&configMap, configMapName)
+					if err != nil {
+						return nil, err
+					}
+					list.Items = append(list.Items, item)
 				}
-				item, err := buildItem(&configMap, configMapName)
-				if err != nil {
-					return nil, err
-				}
-				list.Items = append(list.Items, item)
-
 			} else {
 				return nil, errors.New("Querying can only be done if the '" + configMapNameField + "' field is set")
 			}

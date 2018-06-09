@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ericchiang/k8s"
 	corev1 "github.com/ericchiang/k8s/apis/core/v1"
@@ -39,7 +40,7 @@ var ConfigMapSchema = schema.Schema{
 }
 
 func buildConfigMap(item *resource.Item, kubernetesNamespace string) *corev1.ConfigMap {
-	configmapName := fmt.Sprintf("%v", item.Payload[configMapNameField])
+	configMapName := fmt.Sprintf("%v", item.Payload[configMapNameField])
 
 	var allData map[string]string
 	allData = make(map[string]string)
@@ -54,26 +55,30 @@ func buildConfigMap(item *resource.Item, kubernetesNamespace string) *corev1.Con
 
 	return &corev1.ConfigMap{
 		Metadata: &metav1.ObjectMeta{
-			Name:      k8s.String(configmapName),
+			Name:      k8s.String(configMapName),
 			Namespace: k8s.String(kubernetesNamespace),
 		},
 		Data: allData,
 	}
 }
 
-func buildItem(configmap *corev1.ConfigMap, configmapName string) (*resource.Item, error) {
+func buildItem(configMap *corev1.ConfigMap, configMapName string) (*resource.Item, error) {
 	var configMapContent map[string]interface{}
 	configMapContent = make(map[string]interface{})
 
 	var configMapData map[string]string
 	configMapData = make(map[string]string)
 
-	for k, v := range configmap.Data {
+	for k, v := range configMap.Data {
 		configMapData[k] = v
 	}
 
-	configMapContent[configMapNameField] = configmapName
+	creationTimestamp := time.Unix(*configMap.Metadata.CreationTimestamp.Seconds, int64(*configMap.Metadata.CreationTimestamp.Nanos)).UTC().Format(time.RFC3339)
+
+	configMapContent[configMapNameField] = configMapName
 	configMapContent["data"] = configMapData
+	configMapContent["creationTimestamp"] = creationTimestamp
+
 	return resource.NewItem(configMapContent)
 }
 
@@ -125,14 +130,14 @@ func (k *KubernetesClient) Find(ctx context.Context, q *query.Query) (list *reso
 		case query.Equal:
 			if t.Field == configMapNameField {
 
-				configmapName := t.Value.(string)
+				configMapName := t.Value.(string)
 
 				var configMap corev1.ConfigMap
-				err := k.client.Get(ctx, k.namespace, configmapName, &configMap)
+				err := k.client.Get(ctx, k.namespace, configMapName, &configMap)
 				if err != nil {
 					return nil, err
 				}
-				item, err := buildItem(&configMap, configmapName)
+				item, err := buildItem(&configMap, configMapName)
 				if err != nil {
 					return nil, err
 				}

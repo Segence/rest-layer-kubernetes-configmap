@@ -9,6 +9,21 @@ Further reading about ConfigMaps:
 
 See [examples/main.go](https://github.com/Segence/rest-layer-kubernetes-configmap/blob/master/examples/main.go) for usage example.
 
+## Building
+
+If you're using the [GB](https://getgb.io) build tool, you can fetch all dependencies using the following commands:
+
+```
+gb vendor fetch github.com/justinas/alice
+gb vendor fetch github.com/rs/cors
+gb vendor fetch github.com/rs/rest-layer/resource
+gb vendor fetch github.com/rs/rest-layer/rest
+gb vendor fetch github.com/rs/zerolog
+gb vendor fetch github.com/rs/zerolog/hlog
+gb vendor fetch github.com/rs/zerolog/log
+gb vendor fetch github.com/segence/rest-layer-kubernetes-configmap
+```
+
 ## REST end-points:
 
 | **Operation**             | **HTTP method** | **URL**                    | **Example payload**                                           |
@@ -19,5 +34,7 @@ See [examples/main.go](https://github.com/Segence/rest-layer-kubernetes-configma
 | Find existing ConfigMap   | GET             | `/api/config-map/testconf` | *None*                                                        |
 
 REST call examples are also available in [Postman](https://www.getpostman.com/) format [here](https://github.com/Segence/rest-layer-kubernetes-configmap/blob/master/examples/REST-Layer-Kubernetes-ConfigMap.postman_collection.json).
+
+## Testing
 
 The functionality can be easily tested by running [Minikube](https://github.com/kubernetes/minikube) locally and using the out of cluster Kubernetes client configuration.

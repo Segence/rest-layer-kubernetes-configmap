@@ -66,8 +66,8 @@ func buildItem(configMap *corev1.ConfigMap, configMapName string) (*resource.Ite
 	var configMapContent map[string]interface{}
 	configMapContent = make(map[string]interface{})
 
-	var configMapData map[string]string
-	configMapData = make(map[string]string)
+	var configMapData map[string]interface{}
+	configMapData = make(map[string]interface{})
 
 	for k, v := range configMap.Data {
 		configMapData[k] = v

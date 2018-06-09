@@ -28,15 +28,21 @@ func homeDir() string {
 
 func main() {
 
+	kubernetesNamespace := flag.String("namespace", "default", "The Kubernetes namespace to use")
 	kubeConfigPath := flag.String("kubeconfig", fmt.Sprintf("%s/.kube/config", homeDir()), "Absolute path to the kubeconfig file")
 	flag.Parse()
+
+	fmt.Println("Configuration:")
+	fmt.Printf("  Kubernetes namespace:          %s\n", *kubernetesNamespace)
+	fmt.Printf("  Kubernetes configuration path: %s\n", *kubeConfigPath)
+	fmt.Println("")
 
 	kubernetesClient, err := configmap.LoadClientOutOfCluster(*kubeConfigPath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
 
-	kHandler := configmap.NewHandler(*kubernetesClient, "test")
+	kHandler := configmap.NewHandler(*kubernetesClient, *kubernetesNamespace)
 
 	index := resource.NewIndex()
 

@@ -1,4 +1,4 @@
-package example
+package configmap
 
 import (
 	"fmt"
@@ -16,7 +16,11 @@ type KubernetesClient struct {
 	namespace string
 }
 
-func LoadClientOutOfCluster(kubeconfigPath string) (*k8s.Client, error) {
+func newInClusterClient() (*k8s.Client, error) {
+	return k8s.NewInClusterClient()
+}
+
+func newOutOfClusterClient(kubeconfigPath string) (*k8s.Client, error) {
 	data, err := ioutil.ReadFile(kubeconfigPath)
 	if err != nil {
 		return nil, fmt.Errorf("read kubeconfig: %v", err)
@@ -28,4 +32,12 @@ func LoadClientOutOfCluster(kubeconfigPath string) (*k8s.Client, error) {
 		return nil, fmt.Errorf("unmarshal kubeconfig: %v", err)
 	}
 	return k8s.NewClient(&config)
+}
+
+func NewKubernetesClient(inCluster bool, kubeconfigPath string) (*k8s.Client, error) {
+	if inCluster {
+		return newInClusterClient()
+	} else {
+		return newOutOfClusterClient(kubeconfigPath)
+	}
 }

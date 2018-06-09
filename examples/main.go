@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/justinas/alice"
@@ -18,15 +19,19 @@ import (
 	configmap "github.com/segence/rest-layer-kubernetes-configmap"
 )
 
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
+	}
+	return os.Getenv("USERPROFILE") // windows
+}
+
 func main() {
 
-	kubeconfig := flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	kubeConfigPath := flag.String("kubeconfig", fmt.Sprintf("%s/.kube/config", homeDir()), "Absolute path to the kubeconfig file")
 	flag.Parse()
 
-	kubeConfig := configmap.GetKubeConfig(*kubeconfig)
-	log.Info().Msgf("%s", kubeConfig)
-
-	kubernetesClient, err := configmap.LoadClientOutOfCluster(kubeConfig)
+	kubernetesClient, err := configmap.LoadClientOutOfCluster(*kubeConfigPath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}

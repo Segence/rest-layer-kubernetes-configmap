@@ -11,7 +11,7 @@ See [examples/main.go](https://github.com/Segence/rest-layer-kubernetes-configma
 
 ## REST end-points:
 
-| **Operation**             | **HTTP method** | **URL**                    | **Payload**                                                   |
+| **Operation**             | **HTTP method** | **URL**                    | **Example payload**                                           |
 |:--------------------------|:----------------|:---------------------------|:--------------------------------------------------------------|
 | Create new ConfigMap      | POST            | `/api/config-map`          | `{{"id": "testconf", "data": {"config_value": "Hello"}}}`     |
 | Update existing ConfigMap | PUT             | `/api/config-map/testconf` | `{{"id": "testconf", "data": {"config_value": "Hello2"}}}`    |
@@ -19,3 +19,5 @@ See [examples/main.go](https://github.com/Segence/rest-layer-kubernetes-configma
 | Find existing ConfigMap   | GET             | `/api/config-map/testconf` | *None*                                                        |
 
 REST call examples are also available in [Postman](https://www.getpostman.com/) format [here](https://github.com/Segence/rest-layer-kubernetes-configmap/blob/master/examples/REST-Layer-Kubernetes-ConfigMap.postman_collection.json).
+
+The functionality can be easily tested by running [Minikube](https://github.com/kubernetes/minikube) locally and using the out of cluster Kubernetes client configuration.

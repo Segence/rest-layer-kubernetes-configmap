@@ -16,12 +16,21 @@ import (
 )
 
 const configMapNameField = "id"
+const namespaceField = "namespace"
 
 var ConfigMapSchema = schema.Schema{
 	Fields: schema.Fields{
 		configMapNameField: {
 			Required:   true,
 			Filterable: false,
+			Sortable:   false,
+			Validator: &schema.String{
+				MinLen: 1,
+			},
+		},
+		namespaceField: {
+			Required:   true,
+			Filterable: true,
 			Sortable:   false,
 			Validator: &schema.String{
 				MinLen: 1,
@@ -63,7 +72,7 @@ func buildConfigMap(item *resource.Item, kubernetesNamespace string) *corev1.Con
 	}
 }
 
-func buildItem(configMap *corev1.ConfigMap, configMapName string) (*resource.Item, error) {
+func buildItem(configMap *corev1.ConfigMap, kubernetesNamespace string, configMapName string) (*resource.Item, error) {
 	var configMapContent map[string]interface{}
 	configMapContent = make(map[string]interface{})
 
@@ -77,22 +86,39 @@ func buildItem(configMap *corev1.ConfigMap, configMapName string) (*resource.Ite
 	creationTimestamp := time.Unix(*configMap.Metadata.CreationTimestamp.Seconds, int64(*configMap.Metadata.CreationTimestamp.Nanos)).UTC().Format(time.RFC3339)
 
 	configMapContent[configMapNameField] = configMapName
+	configMapContent[namespaceField] = kubernetesNamespace
 	configMapContent["data"] = configMapData
 	configMapContent["creationTimestamp"] = creationTimestamp
 
 	return resource.NewItem(configMapContent)
 }
 
+func (k *KubernetesClient) getKubernetesNamespace(namespace string) string {
+	kubernetesNamespace := k.defaultNamespace
+	if namespace != "" {
+		kubernetesNamespace = namespace
+	}
+	return kubernetesNamespace
+}
+
+func (k *KubernetesClient) getKubernetesNamespaceFromItem(item *resource.Item) string {
+	kubernetesNamespace := ""
+	if item.Payload["namespace"] != nil {
+		kubernetesNamespace = item.Payload[namespaceField].(string)
+	}
+	return k.getKubernetesNamespace(kubernetesNamespace)
+}
+
 func NewHandler(kubernetesClient k8s.Client, kubernetesNamespace string) *KubernetesClient {
 	return &KubernetesClient{
-		client:    kubernetesClient,
-		namespace: kubernetesNamespace,
+		client:           kubernetesClient,
+		defaultNamespace: kubernetesNamespace,
 	}
 }
 
 func (k *KubernetesClient) Insert(ctx context.Context, items []*resource.Item) (err error) {
 	for _, item := range items {
-		if err := k.client.Create(ctx, buildConfigMap(item, k.namespace)); err != nil {
+		if err := k.client.Create(ctx, buildConfigMap(item, k.getKubernetesNamespaceFromItem(item))); err != nil {
 			return err
 		}
 	}
@@ -101,11 +127,11 @@ func (k *KubernetesClient) Insert(ctx context.Context, items []*resource.Item) (
 }
 
 func (k *KubernetesClient) Delete(ctx context.Context, item *resource.Item) (err error) {
-	return k.client.Delete(ctx, buildConfigMap(item, k.namespace))
+	return k.client.Delete(ctx, buildConfigMap(item, k.getKubernetesNamespaceFromItem(item)))
 }
 
 func (k *KubernetesClient) Update(ctx context.Context, item *resource.Item, original *resource.Item) (err error) {
-	return k.client.Update(ctx, buildConfigMap(item, k.namespace))
+	return k.client.Update(ctx, buildConfigMap(item, k.getKubernetesNamespaceFromItem(item)))
 }
 
 func (k *KubernetesClient) Clear(ctx context.Context, q *query.Query) (total int, err error) {
@@ -126,33 +152,39 @@ func (k *KubernetesClient) Find(ctx context.Context, q *query.Query) (list *reso
 
 	list = &resource.ItemList{Items: []*resource.Item{}}
 
+	configMapName := ""
+	kubernetesNamespace := ""
+
 	for _, exp := range q.Predicate {
 		switch t := exp.(type) {
 		case query.Equal:
 			if t.Field == configMapNameField {
-
-				configMapName := t.Value.(string)
-
-				var configMap corev1.ConfigMap
-				err := k.client.Get(ctx, k.namespace, configMapName, &configMap)
-				if err != nil {
-					apiErr, _ := err.(*k8s.APIError)
-					if apiErr.Code != http.StatusNotFound {
-						return nil, err
-					}
-				} else {
-					item, err := buildItem(&configMap, configMapName)
-					if err != nil {
-						return nil, err
-					}
-					list.Items = append(list.Items, item)
-				}
+				configMapName = t.Value.(string)
+			} else if t.Field == namespaceField {
+				kubernetesNamespace = t.Value.(string)
 			} else {
-				return nil, errors.New("Querying can only be done if the '" + configMapNameField + "' field is set")
+				return nil, errors.New("Querying can only be done if the '" + configMapNameField + "' or '" + namespaceField + "' fields are set")
 			}
 		default:
 			return nil, resource.ErrNotImplemented
 		}
+	}
+
+	actualKubernetesNamespace := k.getKubernetesNamespace(kubernetesNamespace)
+
+	var configMap corev1.ConfigMap
+	err = k.client.Get(ctx, actualKubernetesNamespace, configMapName, &configMap)
+	if err != nil {
+		apiErr, _ := err.(*k8s.APIError)
+		if apiErr.Code != http.StatusNotFound {
+			return nil, err
+		}
+	} else {
+		item, err := buildItem(&configMap, actualKubernetesNamespace, configMapName)
+		if err != nil {
+			return nil, err
+		}
+		list.Items = append(list.Items, item)
 	}
 
 	list.Total = len(list.Items)

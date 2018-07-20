@@ -12,8 +12,8 @@ import (
 type KubernetesClient struct {
 	sync.RWMutex
 
-	client    k8s.Client
-	namespace string
+	client           k8s.Client
+	defaultNamespace string
 }
 
 func newInClusterClient() (*k8s.Client, error) {

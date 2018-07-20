@@ -24,6 +24,36 @@ gb vendor fetch github.com/rs/zerolog/log
 gb vendor fetch github.com/segence/rest-layer-kubernetes-configmap
 ```
 
+## Kubernetes namespaces
+
+The library can access any Kubernetes namespace as long as it has permissions (which can be controlled through [RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/), for example).
+
+The client has to be configred with a default Kubernetes namespace, like in the following code example:
+
+    kHandler := configmap.NewHandler(*kubernetesClient, "some-namespace-name")
+
+However, the library can access ConfigMaps in other namespaces.
+
+### Creating or updating a ConfigMap in another namespace
+
+Add the `namespace` field into the payload, e.g.:
+
+```
+{
+	"id": "test",
+	"namespace": "my-namespace",
+	"data": {
+		...
+	}
+}
+```
+
+### Querying or deleting a ConfigMap in another namespace
+
+Add the `?filter=` query parameter to the end of the URL.
+
+E.g.: `/api/config-map/test?filter={namespace:"my-namespaceap"}`
+
 ## REST end-points:
 
 | **Operation**             | **HTTP method** | **URL**                    | **Example payload**                                           |

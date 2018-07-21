@@ -152,8 +152,8 @@ func (k *KubernetesClient) Find(ctx context.Context, q *query.Query) (list *reso
 
 	list = &resource.ItemList{Items: []*resource.Item{}}
 
-	configMapName := ""
-	kubernetesNamespace := ""
+	var configMapName string
+	var kubernetesNamespace string
 
 	for _, exp := range q.Predicate {
 		switch t := exp.(type) {
@@ -168,6 +168,10 @@ func (k *KubernetesClient) Find(ctx context.Context, q *query.Query) (list *reso
 		default:
 			return nil, resource.ErrNotImplemented
 		}
+	}
+
+	if configMapName == "" {
+		return nil, errors.New("ConfigMap name is not provided")
 	}
 
 	actualKubernetesNamespace := k.getKubernetesNamespace(kubernetesNamespace)

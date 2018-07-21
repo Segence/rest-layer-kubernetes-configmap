@@ -29,7 +29,7 @@ var ConfigMapSchema = schema.Schema{
 			},
 		},
 		namespaceField: {
-			Required:   true,
+			Required:   false,
 			Filterable: true,
 			Sortable:   false,
 			Validator: &schema.String{
@@ -38,7 +38,7 @@ var ConfigMapSchema = schema.Schema{
 		},
 		"data": {
 			Required:   true,
-			Filterable: true,
+			Filterable: false,
 			Validator: &schema.Dict{
 				KeysValidator: &schema.String{},
 				Values: schema.Field{

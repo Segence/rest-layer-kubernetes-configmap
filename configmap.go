@@ -118,9 +118,24 @@ func NewHandler(kubernetesClient k8s.Client, kubernetesNamespace string) *Kubern
 
 func (k *KubernetesClient) Insert(ctx context.Context, items []*resource.Item) (err error) {
 	for _, item := range items {
-		if err := k.client.Create(ctx, buildConfigMap(item, k.getKubernetesNamespaceFromItem(item))); err != nil {
-			return err
+
+		configMapName := fmt.Sprintf("%v", item.Payload[configMapNameField])
+		actualKubernetesNamespace := k.getKubernetesNamespaceFromItem(item)
+		configMap := buildConfigMap(item, actualKubernetesNamespace)
+		var existingConfigMap corev1.ConfigMap
+
+		err = k.client.Get(ctx, actualKubernetesNamespace, configMapName, &existingConfigMap)
+
+		if err != nil {
+			apiErr, _ := err.(*k8s.APIError)
+			if apiErr.Code == http.StatusNotFound {
+				if err := k.client.Create(ctx, configMap); err != nil {
+					return err
+				}
+			}
 		}
+
+		return k.client.Update(ctx, configMap)
 	}
 
 	return nil

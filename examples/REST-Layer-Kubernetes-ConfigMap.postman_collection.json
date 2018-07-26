@@ -1,11 +1,12 @@
 {
 	"info": {
 		"_postman_id": "f9e882d4-ef3d-495c-9219-e29f314a89b8",
-		"name": "REST Layer Kubernetes ConfigMap",
+		"name": "REST ConfigMap",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
+			"_postman_id": "6f228617-6a3e-4f46-87c6-8a387eea545b",
 			"name": "Creating new ConfigMap",
 			"request": {
 				"method": "POST",
@@ -17,15 +18,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello\"\n\t}\n}"
+					"raw": "{\n\t\"id\": \"test-config-map\",\n\t\"data\": {\n\t\t\"keywords\":\"[]\"\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/config-map",
-					"protocol": "http",
+					"raw": "{{configmap-handler}}/api/config-map",
 					"host": [
-						"localhost"
+						"{{configmap-handler}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"config-map"
@@ -35,6 +34,7 @@
 			"response": []
 		},
 		{
+			"_postman_id": "93621e45-87c1-4074-b4b1-c058509c3eee",
 			"name": "Updating existing ConfigMap",
 			"request": {
 				"method": "PUT",
@@ -46,25 +46,24 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello2\",\n\t\t\"new_config\": \"12\"\n\t}\n}"
+					"raw": "{\n\t\"id\": \"test-config-map\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello2\",\n\t\t\"new_config\": \"12\"\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/config-map/testconf",
-					"protocol": "http",
+					"raw": "{{configmap-handler}}/api/config-map/test-config-map",
 					"host": [
-						"localhost"
+						"{{configmap-handler}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"config-map",
-						"testconf"
+						"test-config-map"
 					]
 				}
 			},
 			"response": []
 		},
 		{
+			"_postman_id": "05249c4a-a012-4c8f-a649-ed6a7edb88b5",
 			"name": "Deleting existing ConfigMap",
 			"request": {
 				"method": "DELETE",
@@ -79,22 +78,21 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/config-map/testconf",
-					"protocol": "http",
+					"raw": "{{configmap-handler}}/api/config-map/test-config-map",
 					"host": [
-						"localhost"
+						"{{configmap-handler}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"config-map",
-						"testconf"
+						"test-config-map"
 					]
 				}
 			},
 			"response": []
 		},
 		{
+			"_postman_id": "76789068-9da1-401e-9863-bf576dfaab26",
 			"name": "Querying existing ConfigMap",
 			"request": {
 				"method": "GET",
@@ -109,16 +107,49 @@
 					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello\"\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/config-map/testconf",
-					"protocol": "http",
+					"raw": "{{configmap-handler}}/api/config-map/test-config-map",
 					"host": [
-						"localhost"
+						"{{configmap-handler}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"config-map",
-						"testconf"
+						"test-config-map"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "a6ca77fd-4bb7-41ff-b32f-74aba76fbd79",
+			"name": "Querying existing ConfigMap in another namespace",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"testconf\",\n\t\"data\": {\n\t\t\"config_value\":\"Hello\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "{{configmap-handler}}/api/config-map/test-config-map?filter={namespace:\"my-namespace\"}",
+					"host": [
+						"{{configmap-handler}}"
+					],
+					"path": [
+						"api",
+						"config-map",
+						"test-config-map"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "{namespace:\"my-namespace\"}"
+						}
 					]
 				}
 			},

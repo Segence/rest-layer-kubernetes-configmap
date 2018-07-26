@@ -9,6 +9,12 @@ Further reading about ConfigMaps:
 
 See [examples/main.go](https://github.com/Segence/rest-layer-kubernetes-configmap/blob/master/examples/main.go) for usage example.
 
+## Feature overview
+
+- Offers CRUD-style REST API functionality
+- Can manage ConfigMaps in the namespace it is installed to or in any other namespace (given sufficient access privileges)
+- Maintains original ConfigMap labels on Update
+
 ## Building
 
 If you're using the [GB](https://getgb.io) build tool, you can fetch all dependencies using the following commands:
@@ -63,7 +69,7 @@ E.g.: `/api/config-map/test?filter={namespace:"my-namespaceap"}`
 | Delete existing ConfigMap | DELETE          | `/api/config-map/testconf` | *None*                                                        |
 | Find existing ConfigMap   | GET             | `/api/config-map/testconf` | *None*                                                        |
 
-REST call examples are also available in [Postman](https://www.getpostman.com/) format [here](https://github.com/Segence/rest-layer-kubernetes-configmap/blob/master/examples/REST-Layer-Kubernetes-ConfigMap.postman_collection.json).
+REST call examples are also available in [Postman](https://www.getpostman.com/) format [here](examples/REST-Layer-Kubernetes-ConfigMap.postman_collection.json). Make sure to override the `{{configmap-handler}}` variable to the actual host where the application is running, e.g. `http://localhost:8080`.
 
 ## Testing
 

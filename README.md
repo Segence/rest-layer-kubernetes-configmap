@@ -36,7 +36,7 @@ The library can access any Kubernetes namespace as long as it has permissions (w
 
 The client has to be configred with a default Kubernetes namespace, like in the following code example:
 
-    kHandler := configmap.NewHandler(*kubernetesClient, "some-namespace-name")
+    kHandler := configmap.NewHandler(*kubernetesClient, "some-default-namespace-name")
 
 However, the library can access ConfigMaps in other namespaces.
 
@@ -46,7 +46,7 @@ Add the `namespace` field into the payload, e.g.:
 
 ```
 {
-	"id": "test",
+	"id": "test-config-map",
 	"namespace": "my-namespace",
 	"data": {
 		...
@@ -58,16 +58,16 @@ Add the `namespace` field into the payload, e.g.:
 
 Add the `?filter=` query parameter to the end of the URL.
 
-E.g.: `/api/config-map/test?filter={namespace:"my-namespaceap"}`
+E.g.: `/api/config-map/test-config-map?filter={namespace:"my-namespace"}`
 
 ## REST end-points:
 
-| **Operation**             | **HTTP method** | **URL**                    | **Example payload**                                           |
-|:--------------------------|:----------------|:---------------------------|:--------------------------------------------------------------|
-| Create new ConfigMap      | POST            | `/api/config-map`          | `{{"id": "testconf", "data": {"config_value": "Hello"}}}`     |
-| Update existing ConfigMap | PUT             | `/api/config-map/testconf` | `{{"id": "testconf", "data": {"config_value": "Hello2"}}}`    |
-| Delete existing ConfigMap | DELETE          | `/api/config-map/testconf` | *None*                                                        |
-| Find existing ConfigMap   | GET             | `/api/config-map/testconf` | *None*                                                        |
+| **Operation**             | **HTTP method** | **URL**                           | **Example payload**                                               |
+|:--------------------------|:----------------|:----------------------------------|:------------------------------------------------------------------|
+| Create new ConfigMap      | POST            | `/api/config-map`                 | `{{"id": "test-config-map", "data": {"config_value": "Hello"}}}`  |
+| Update existing ConfigMap | PUT             | `/api/config-map/test-config-map` | `{{"id": "test-config-map", "data": {"config_value": "Hello2"}}}` |
+| Delete existing ConfigMap | DELETE          | `/api/config-map/test-config-map` | *None*                                                            |
+| Find existing ConfigMap   | GET             | `/api/config-map/test-config-map` | *None*                                                            |
 
 REST call examples are also available in [Postman](https://www.getpostman.com/) format [here](examples/REST-Layer-Kubernetes-ConfigMap.postman_collection.json). Make sure to override the `{{configmap-handler}}` variable to the actual host where the application is running, e.g. `http://localhost:8080`.
 

@@ -111,12 +111,15 @@ func (k *KubernetesClient) findConfigMap(ctx context.Context, q *query.Query) (*
 	var configMap corev1.ConfigMap
 	err := k.client.Get(ctx, actualKubernetesNamespace, configMapName, &configMap)
 	if err != nil {
-		apiErr, _ := err.(*k8s.APIError)
+		apiErr, ok := err.(*k8s.APIError)
+		if !ok {
+			return nil, "", err
+		}
 		if apiErr.Code != http.StatusNotFound {
 			return nil, "", err
 		}
 	} else {
-	    return &configMap, actualKubernetesNamespace, nil
+		return &configMap, actualKubernetesNamespace, nil
 	}
 
 	return nil, "", nil
